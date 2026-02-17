@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Diabetes AI Assistant</title>
+    <style>
+        body{
+            background:#f4f7fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .card{
+            width:420px;
+            margin:120px auto;
+            background:white;
+            padding:30px;
+            border-radius:12px;
+            box-shadow:0 10px 25px rgba(0,0,0,0.1);
+            text-align:center;
+        }
+
+        h1{
+            color:#2c3e50;
+        }
+
+        input{
+            width:90%;
+            padding:12px;
+            border-radius:8px;
+            border:1px solid #ccc;
+            margin-top:15px;
+            font-size:16px;
+        }
+
+        button{
+            background:#3498db;
+            color:white;
+            border:none;
+            padding:12px 25px;
+            border-radius:8px;
+            margin-top:15px;
+            font-size:16px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#2980b9;
+        }
+
+        .result{
+            margin-top:25px;
+            text-align:left;
+            background:#ecf3ff;
+            padding:15px;
+            border-radius:8px;
+        }
+
+        .label{
+            font-weight:bold;
+            color:#2c3e50;
+        }
+
+        .Low{ color:green; font-weight:bold; }
+        .Medium{ color:orange; font-weight:bold; }
+        .High{ color:red; font-weight:bold; }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h1>Diabetes AI Assistant</h1>
+    <p>Enter your sugar level (BMI optional)</p>
+
+    <form method="post">
+        <input type="number" name="sugar" placeholder="Sugar Level (eg: 140)" required>
+
+        <input type="number" step="0.01" name="weight" placeholder="Weight in kg (optional)">
+        <input type="number" step="0.01" name="height" placeholder="Height in meters (optional)">
+
+        <br>
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if response %}
+    <div class="result">
+        <p><span class="label">Diabetes Type:</span> {{ response.type }}</p>
+
+        <p>
+            <span class="label">Risk Level:</span>
+            <span class="{{ response.risk }}">{{ response.risk }}</span>
+        </p>
+
+        <p><span class="label">Diet Plan:</span> {{ response.diet }}</p>
+        <p><span class="label">Exercise:</span> {{ response.exercise }}</p>
+
+        {% if response.bmi %}
+        <p><span class="label">BMI:</span> {{ response.bmi }}</p>
+        <p><span class="label">BMI Status:</span> {{ response.bmi_status }}</p>
+        <p><span class="label">Health Advice:</span> {{ response.advice }}</p>
+        {% endif %}
+    </div>
+
+    <canvas id="chart" width="360" height="220"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let history = {{ response.history | safe }};
+
+        new Chart(document.getElementById("chart"), {
+            type: "line",
+            data: {
+                labels: history.map((_, i) => "Day " + (i + 1)),
+                datasets: [{
+                    label: "Blood Sugar Level",
+                    data: history,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    fill: true
+                }]
+            }
+        });
+    </script>
+    {% endif %}
+</div>
+
+</body>
+</html>
